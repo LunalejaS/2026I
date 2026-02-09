@@ -1,0 +1,51 @@
+# JACQUES DEFINE QUE LO CONVIERTE EN ARDILLA
+
+import math
+import requests
+
+# Traemos los datos del .json
+URL = "https://gist.githubusercontent.com/josejbocanegra/b1873c6b7e732144355bb1627b6895ed/raw/d91df4c8093c23c41dce6292d5c1ffce0f01a68b/newDatalog.json"
+data = requests.get(URL).json()
+
+# Definimos la fórmula del MCC
+def mcc(tp, tn, fp, fn):
+    insideSqrt = (tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)
+    if insideSqrt == 0:
+        return 0
+    return ((tp * tn) - (fp * fn)) / math.sqrt(insideSqrt)
+
+# Obtenemos cada uno de los eventos del .json
+events = set()
+for dayRegister in data:
+    for oneEvent in dayRegister["events"]:
+        events.add(oneEvent)
+
+# Definimos el array que guardara el MCC de cada evento
+listMcc = []
+
+# Calculamos el MMC de cada evento y los guardamos en el array
+for oneEvent in events:
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+    for dayRegister in data:
+        squirrel = dayRegister["squirrel"]
+        happend = oneEvent in dayRegister["events"]
+        if squirrel and happend:
+            tp += 1
+        elif not squirrel and not happend:
+            tn += 1
+        elif not squirrel and happend:
+            fp += 1
+        else:
+            fn += 1
+    listMcc.append((oneEvent, mcc(tp, tn, fp, fn)))
+    
+# Ordenamos el array de mayor a menor
+listMcc.sort(key = lambda x: x[1], reverse = True)
+
+# Mostramos los eventos de manera descendente según su MCC
+print ("Correlation of events\n")
+for oneEvent, corr in listMcc:
+    print(f"{oneEvent:25s} {corr:.14f}")
