@@ -23,6 +23,14 @@ class TestInfoUnitsConversion(unittest.TestCase):
         result = info_units_conversion("hartley", "bit", 1)
         self.assertAlmostEqual(result, math.log2(10), places=5)
 
+    def test_nat_to_hartley(self):
+        result = info_units_conversion("nat", "hartley", 1)
+        self.assertAlmostEqual(result, math.log10(math.e), places=5)
+
+    def test_hartley_to_nat(self):
+        result = info_units_conversion("hartley", "nat", 1)
+        self.assertAlmostEqual(result, math.log(10), places=5)
+
     def test_plural_and_case(self):
         result = info_units_conversion("BITS", "NATS", 1)
         self.assertAlmostEqual(result, math.log(2), places=5)
